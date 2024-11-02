@@ -71,6 +71,17 @@ def courseStat(request):
             'unpopular': serializers.serialize('python', unpopular)}
   return JsonResponse(result, safe=False)
 
+def courseMemberStat(request):
+    courses = Course.objects.filter(description__contains='python') \
+                            .annotate(member_num=Count('coursemember'))
+    course_data = []
+    for course in courses:
+        record = {'id': course.id, 'name': course.name, 'price': course.price, 
+                  'member_count': course.member_num}
+        course_data.append(record)
+    result = {'data_count': len(course_data), 'data':course_data}
+    return JsonResponse(result)
+
 def courseDetail(request, course_id):
    course = Course.objects.annotate(member_count=Count('coursemember'), 
                                  content_count=Count('coursecontent'),
